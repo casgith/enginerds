@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Thai Consonant Drill</title>
+
+<style>
+body {
+    font-family: Arial;
+    text-align: center;
+    background: #f5f5f5;
+}
+
+.container {
+    margin-top: 60px;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    width: 300px;
+    margin: auto;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+}
+
+button {
+    width: 80%;
+    padding: 10px;
+    margin: 6px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background: #e0e0e0;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #d0d0d0;
+}
+
+.startBtn {
+    background: #4CAF50;
+    color: white;
+}
+
+.correct {
+    color: green;
+    font-weight: bold;
+}
+
+.wrong {
+    color: red;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<h3>CSII EngiNerds presents</h3>
+<h2>Thai Consonants</h2>
+
+<button class="startBtn" onclick="startQuiz()">Start Quiz</button>
+
+<div id="quiz" style="display:none;">
+
+<h3 id="hearts">❤️❤️❤️</h3>
+
+<h1 id="question"></h1>
+
+<div id="choices"></div>
+
+<p id="result"></p>
+
+</div>
+
+</div>
+</div>
+
+<script>
+let hearts;
+let current;
+
+const consonants = [
+{ letter:"ก", correct:"kor kai", choices:["kor kai","jor jan","thor thung"]},
+{ letter:"จ", correct:"jor jan", choices:["jor jan","sor sua","kor kai"]},
+{ letter:"ว", correct:"wor waen", choices:["wor waen","hor hip","por pla"]},
+{ letter:"ร", correct:"ror ruea", choices:["ror ruea","chor chang","por pan"]},
+{ letter:"ฮ", correct:"hor nok-huk", choices:["hor nok-huk","sor sua","gor gai"]}
+];
+
+function startQuiz(){
+
+    // ⭐ RESET GAME
+    hearts = 3;
+    current = 0;
+    shuffle(consonants);
+
+    document.getElementById("hearts").innerText = "❤️❤️❤️";
+    document.getElementById("result").innerText = "";
+
+    document.querySelector(".startBtn").style.display = "none";
+    document.getElementById("quiz").style.display = "block";
+
+    showQuestion();
+}
+
+function showQuestion(){
+
+    if(current >= consonants.length){
+        document.getElementById("result").innerText = "🎉 Finished!";
+        return;
+    }
+
+    let q = consonants[current];
+    document.getElementById("question").innerText = q.letter;
+
+    let html = "";
+    shuffle(q.choices);
+
+    q.choices.forEach(choice=>{
+        html += `<button onclick="checkAnswer('${choice}')">${choice}</button>`;
+    });
+
+    document.getElementById("choices").innerHTML = html;
+}
+
+function checkAnswer(answer){
+
+    let q = consonants[current];
+
+    if(answer === q.correct){
+        document.getElementById("result").innerHTML =
+        `<span class="correct">✔ Correct: ${q.letter} = ${q.correct}</span>`;
+    }
+    else{
+        hearts--;
+        document.getElementById("result").innerHTML =
+        `<span class="wrong">❌ Incorrect</span>`;
+    }
+
+    updateHearts();
+
+    if(hearts === 0){
+        document.getElementById("result").innerHTML =
+        `<span class="wrong">Game Over</span>`;
+        document.getElementById("choices").innerHTML = "";
+        return;
+    }
+
+    current++;
+    setTimeout(showQuestion, 1000);
+}
+
+function updateHearts(){
+    document.getElementById("hearts").innerText = "❤️".repeat(hearts);
+}
+
+function shuffle(array){
+    for(let i=array.length-1;i>0;i--){
+        let j=Math.floor(Math.random()*(i+1));
+        [array[i],array[j]]=[array[j],array[i]];
+    }
+}
+</script>
+
+</body>
+</html>
