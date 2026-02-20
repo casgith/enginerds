@@ -70,6 +70,7 @@ button:hover {
 <div id="quiz" style="display:none;">
 
 <h3 id="hearts">❤️❤️❤️</h3>
+<p id="counter" style="font-size: 14px; color: #666;">Mastered: 0/5</p>
 
 <h1 id="question"></h1>
 
@@ -85,6 +86,7 @@ button:hover {
 <script>
 let hearts;
 let current;
+let knownCards = new Set();
 
 const consonants = [
 { letter:"ก", correct:"kor kai", choices:["kor kai","jor jan","thor thung"]},
@@ -99,9 +101,11 @@ function startQuiz(){
     // ⭐ RESET GAME
     hearts = 3;
     current = 0;
+    knownCards = new Set();
     shuffle(consonants);
 
     document.getElementById("hearts").innerText = "❤️❤️❤️";
+    document.getElementById("counter").innerText = "Mastered: 0/5";
     document.getElementById("result").innerText = "";
 
     document.querySelector(".startBtn").style.display = "none";
@@ -112,8 +116,14 @@ function startQuiz(){
 
 function showQuestion(){
 
+    // Skip known cards
+    while(current < consonants.length && knownCards.has(current)){
+        current++;
+    }
+
     if(current >= consonants.length){
-        document.getElementById("result").innerText = "🎉 Finished!";
+        document.getElementById("result").innerText = "🎉 All Cards Mastered!";
+        document.getElementById("choices").innerHTML = "";
         return;
     }
 
@@ -135,8 +145,10 @@ function checkAnswer(answer){
     let q = consonants[current];
 
     if(answer === q.correct){
+        knownCards.add(current);
         document.getElementById("result").innerHTML =
         `<span class="correct">✔ Correct: ${q.letter} = ${q.correct}</span>`;
+        updateCounter();
     }
     else{
         hearts--;
@@ -159,6 +171,10 @@ function checkAnswer(answer){
 
 function updateHearts(){
     document.getElementById("hearts").innerText = "❤️".repeat(hearts);
+}
+
+function updateCounter(){
+    document.getElementById("counter").innerText = `Mastered: ${knownCards.size}/5`;
 }
 
 function shuffle(array){
