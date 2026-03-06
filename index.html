@@ -69,8 +69,6 @@ button:hover {
 
 <button class="startBtn" onclick="startQuiz()">Start Quiz</button>
 
-<button class="startBtn" onclick="startQuiz()">Start Quiz</button>
-
 <div id="quiz" style="display:none;">
     
 <p id="playerInfo" style="font-size: 16px; font-weight: bold; color: #333;"></p>
@@ -103,9 +101,7 @@ const consonants = [
 { letter:"ฮ", correct:"hor nok-huk", choices:["hor nok-huk","sor sua","gor gai"]}
 ];
 
-function startQuiz(){
-
-  async function startQuiz(){
+async function startQuiz(){
     const nickname = document.getElementById("nickname").value.trim();
 
     if(!nickname){
@@ -114,18 +110,17 @@ function startQuiz(){
     }
 
     try {
-        const response = await fetch(`${BACKEND_URL}/start`, {
+        const response = await fetch(`${BACKEND_URL}/start?nickname=${encodeURIComponent(nickname)}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ nickname: nickname })
+            }
         });
 
         const data = await response.json();
 
         document.getElementById("playerInfo").innerText =
-            `${data.nickname} | Starts: ${data.count}`;
+            `${data.nickname} | Starts: ${data.counter}`;
 
         // RESET GAME
         hearts = 3;
