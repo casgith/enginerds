@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import psycopg2
@@ -19,8 +19,12 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 def get_connection():
     return psycopg2.connect(DATABASE_URL)
 
+@app.get("/")
+def read_root():
+    return {"message": "Backend is running!"}
+
 @app.post("/start")
-def start_quiz(nickname: str):
+def start_quiz(nickname: str = Query(...)):
     conn = get_connection()
     cur = conn.cursor()
 
