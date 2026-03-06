@@ -25,28 +25,34 @@ def read_root():
 
 @app.post("/start")
 def start_quiz(nickname: str = Query(...)):
-    conn = get_connection()
-    cur = conn.cursor()
+    if not DATABASE_URL:
+        return {"error": "Database not configured"}
 
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        nickname TEXT PRIMARY KEY,
-        counter INT
-    )
-    """)
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
 
-    cur.execute("SELECT counter FROM users WHERE nickname=%s", (nickname,))
-    result = cur.fetchone()
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            nickname TEXT PRIMARY KEY,
+            counter INT
+        )
+        """)
 
-    if result:
-        counter = result[0] + 1
-        cur.execute("UPDATE users SET counter=%s WHERE nickname=%s", (counter, nickname))
-    else:
-        counter = 1
-        cur.execute("INSERT INTO users VALUES (%s,%s)", (nickname, counter))
+        cur.execute("SELECT counter FROM users WHERE nickname=%s", (nickname,))
+        result = cur.fetchone()
 
-    conn.commit()
-    cur.close()
-    conn.close()
+        if result:
+            counter = result[0] + 1
+            cur.execute("UPDATE users SET counter=%s WHERE nickname=%s", (counter, nickname))
+        else:
+            counter = 1
+            cur.execute("INSERT INTO users VALUES (%s,%s)", (nickname, counter))
 
-    return {"nickname": nickname, "counter": counter}
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return {"nickname": nickname, "counter": counter}
+    except Exception as e:
+        return {"error": f"Database error: {str(e)}"}
