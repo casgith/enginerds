@@ -17,11 +17,17 @@ app.add_middleware(
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_connection():
+    if not DATABASE_URL:
+        raise Exception("DATABASE_URL environment variable not set")
     return psycopg2.connect(DATABASE_URL)
 
 @app.get("/")
 def read_root():
     return {"message": "Backend is running!"}
+
+@app.get("/test")
+def test_endpoint():
+    return {"status": "OK", "database_url_set": DATABASE_URL is not None}
 
 @app.post("/start")
 def start_quiz(nickname: str = Query(...)):
