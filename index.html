@@ -65,10 +65,16 @@ button:hover {
 <h3>CSII EngiNerds presents</h3>
 <h2>Thai Consonants</h2>
 
+<input id="nickname" type="text" placeholder="Enter your nickname" style="width: 80%; padding: 10px; margin: 8px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc;">
+
+<button class="startBtn" onclick="startQuiz()">Start Quiz</button>
+
 <button class="startBtn" onclick="startQuiz()">Start Quiz</button>
 
 <div id="quiz" style="display:none;">
-
+    
+<p id="playerInfo" style="font-size: 16px; font-weight: bold; color: #333;"></p>
+    
 <h3 id="hearts">❤️❤️❤️</h3>
 <p id="counter" style="font-size: 14px; color: #666;">Mastered: 0/5</p>
 
@@ -87,7 +93,8 @@ button:hover {
 let hearts;
 let current;
 let knownCards = new Set();
-
+const BACKEND_URL = "https://enginerds-service.onrender.com";
+    
 const consonants = [
 { letter:"ก", correct:"kor kai", choices:["kor kai","jor jan","thor thung"]},
 { letter:"จ", correct:"jor jan", choices:["jor jan","sor sua","kor kai"]},
@@ -98,20 +105,47 @@ const consonants = [
 
 function startQuiz(){
 
-    // ⭐ RESET GAME
-    hearts = 3;
-    current = 0;
-    knownCards = new Set();
-    shuffle(consonants);
+  async function startQuiz(){
+    const nickname = document.getElementById("nickname").value.trim();
 
-    document.getElementById("hearts").innerText = "❤️❤️❤️";
-    document.getElementById("counter").innerText = "Mastered: 0/5";
-    document.getElementById("result").innerText = "";
+    if(!nickname){
+        alert("Please enter your nickname");
+        return;
+    }
 
-    document.querySelector(".startBtn").style.display = "none";
-    document.getElementById("quiz").style.display = "block";
+    try {
+        const response = await fetch(`${BACKEND_URL}/start`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ nickname: nickname })
+        });
 
-    showQuestion();
+        const data = await response.json();
+
+        document.getElementById("playerInfo").innerText =
+            `${data.nickname} | Starts: ${data.count}`;
+
+        // RESET GAME
+        hearts = 3;
+        current = 0;
+        knownCards = new Set();
+        shuffle(consonants);
+
+        document.getElementById("hearts").innerText = "❤️❤️❤️";
+        document.getElementById("counter").innerText = "Mastered: 0/5";
+        document.getElementById("result").innerText = "";
+
+        document.querySelector(".startBtn").style.display = "none";
+        document.getElementById("nickname").style.display = "none";
+        document.getElementById("quiz").style.display = "block";
+
+        showQuestion();
+    } catch (error) {
+        alert("Could not connect to backend service.");
+        console.error(error);
+    }
 }
 
 function showQuestion(){
